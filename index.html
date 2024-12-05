@@ -3,168 +3,156 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Калькулятор для бочек</title>
+  <title>Подсчёт литража в бочке</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   <style>
-    /* Общие стили */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    }
-
     body {
-      background-color: #1c1c1e;
+      font-family: 'Arial', sans-serif;
+      background-color: #2a2a2a;
       color: white;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      justify-content: space-between;
       height: 100vh;
-      padding: 20px;
+      margin: 0;
     }
-
-    /* Секция переключателей */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      max-width: 400px;
+    #app {
+      width: 320px;
+      background-color: #4a148c;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    #display {
+      font-size: 32px;
+      color: white;
+      text-align: center;
       margin-bottom: 20px;
     }
-
-    .header button {
-      background: none;
-      border: none;
-      color: #a29bfe;
-      font-size: 24px;
-      cursor: pointer;
-    }
-
-    .header span {
-      font-size: 20px;
-      font-weight: bold;
-      color: white;
-    }
-
-    /* Экран калькулятора */
-    .display {
-      background-color: #2c2c2e;
-      width: 100%;
-      max-width: 400px;
-      height: 100px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding: 20px;
-      font-size: 36px;
-      color: white;
-      margin-bottom: 20px;
-    }
-
-    /* Секция кнопок */
-    .keypad {
+    .button-container {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 10px;
-      width: 100%;
-      max-width: 400px;
     }
-
-    .keypad button {
-      background-color: #5e5ce6;
-      color: white;
+    .button {
+      background-color: #7c4dff;
       border: none;
-      font-size: 24px;
-      font-weight: bold;
       padding: 20px;
+      font-size: 24px;
+      color: white;
       border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.2s;
     }
-
-    .keypad button:hover {
-      background-color: #4a48d1;
+    .button:hover {
+      background-color: #5e35b1;
     }
-
-    .keypad .enter {
-      grid-column: span 3;
-      background-color: #a29bfe;
-      color: #1c1c1e;
+    .control-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
     }
-
-    .keypad .enter:hover {
-      background-color: #918de8;
+    .arrow {
+      background-color: #7c4dff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 18px;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .arrow:hover {
+      background-color: #5e35b1;
     }
   </style>
 </head>
 <body>
-  <!-- Секция переключения между бочками -->
-  <div class="header">
-    <button onclick="switchBarrel('prev')">&lt;</button>
-    <span id="barrel-name">module</span>
-    <button onclick="switchBarrel('next')">&gt;</button>
-  </div>
-
-  <!-- Экран вывода значения -->
-  <div class="display" id="display">0</div>
-
-  <!-- Цифровая клавиатура -->
-  <div class="keypad">
-    <button onclick="addValue(7)">7</button>
-    <button onclick="addValue(8)">8</button>
-    <button onclick="addValue(9)">9</button>
-    <button onclick="addValue(4)">4</button>
-    <button onclick="addValue(5)">5</button>
-    <button onclick="addValue(6)">6</button>
-    <button onclick="addValue(1)">1</button>
-    <button onclick="addValue(2)">2</button>
-    <button onclick="addValue(3)">3</button>
-    <button onclick="addValue(',')">,</button>
-    <button onclick="addValue(0)">0</button>
-    <button class="enter" onclick="submitValue()">Enter</button>
+  <div id="app">
+    <div class="control-buttons">
+      <button class="arrow" id="prevBarrel">&lt;</button>
+      <h2 id="barrelTitle">Module</h2>
+      <button class="arrow" id="nextBarrel">&gt;</button>
+    </div>
+    <div id="display">0</div>
+    <div class="button-container">
+      <button class="button" id="button1">1</button>
+      <button class="button" id="button2">2</button>
+      <button class="button" id="button3">3</button>
+      <button class="button" id="button4">4</button>
+      <button class="button" id="button5">5</button>
+      <button class="button" id="button6">6</button>
+      <button class="button" id="button7">7</button>
+      <button class="button" id="button8">8</button>
+      <button class="button" id="button9">9</button>
+      <button class="button" id="button0">0</button>
+      <button class="button" id="buttonEnter">Enter</button>
+    </div>
   </div>
 
   <script>
-    // Переменные
+    // Инициализация переменных
     let currentBarrel = "module";
-    const barrels = ["module", "103"];
+    let displayValue = "0";
+    let data = {}; // Будем хранить данные из CSV
 
-    // Функция переключения бочек
-    function switchBarrel(direction) {
-      const currentIndex = barrels.indexOf(currentBarrel);
-      if (direction === "next") {
-        currentBarrel = barrels[(currentIndex + 1) % barrels.length];
-      } else {
-        currentBarrel = barrels[(currentIndex - 1 + barrels.length) % barrels.length];
-      }
-      document.getElementById("barrel-name").textContent = currentBarrel;
+    // Загружаем CSV данные с использованием PapaParse
+    function loadCSVData() {
+      Papa.parse("module.csv", {
+        download: true,
+        complete: function(results) {
+          data = {};
+          results.data.forEach(row => {
+            if (row[0] !== 'Литраж') { // Пропускаем заголовок
+              data[row[0]] = row[1];  // Сохраняем данные в объект
+            }
+          });
+          console.log("Данные для module:", data);
+        }
+      });
     }
 
-    // Обновление экрана
+    // Вызываем функцию загрузки данных
+    loadCSVData();
+
+    // Обновление отображаемого значения
     function updateDisplay(value) {
-      const display = document.getElementById("display");
-      display.textContent = value;
+      document.getElementById("display").textContent = value;
+      displayValue = value;
     }
 
-    // Добавление значения на экран
-    function addValue(value) {
-      const display = document.getElementById("display");
-      if (display.textContent === "0" && value !== ",") {
-        display.textContent = value;
+    // Кнопки
+    document.getElementById("button1").onclick = () => updateDisplay(displayValue === "0" ? "1" : displayValue + "1");
+    document.getElementById("button2").onclick = () => updateDisplay(displayValue === "0" ? "2" : displayValue + "2");
+    document.getElementById("button3").onclick = () => updateDisplay(displayValue === "0" ? "3" : displayValue + "3");
+    document.getElementById("button4").onclick = () => updateDisplay(displayValue === "0" ? "4" : displayValue + "4");
+    document.getElementById("button5").onclick = () => updateDisplay(displayValue === "0" ? "5" : displayValue + "5");
+    document.getElementById("button6").onclick = () => updateDisplay(displayValue === "0" ? "6" : displayValue + "6");
+    document.getElementById("button7").onclick = () => updateDisplay(displayValue === "0" ? "7" : displayValue + "7");
+    document.getElementById("button8").onclick = () => updateDisplay(displayValue === "0" ? "8" : displayValue + "8");
+    document.getElementById("button9").onclick = () => updateDisplay(displayValue === "0" ? "9" : displayValue + "9");
+    document.getElementById("button0").onclick = () => updateDisplay(displayValue === "0" ? "0" : displayValue + "0");
+
+    // Кнопка Enter (поиск значения)
+    document.getElementById("buttonEnter").onclick = function() {
+      if (data[displayValue]) {
+        alert(`Найдено значение: ${data[displayValue]}`);
       } else {
-        display.textContent += value;
+        alert(`Значение ${displayValue} не найдено`);
       }
-    }
+      updateDisplay("0");
+    };
 
-    // Подтверждение значения
-    function submitValue() {
-      const value = document.getElementById("display").textContent;
-      alert(`Вы ввели: ${value} для бочки ${currentBarrel}`);
-      updateDisplay("0"); // Сброс экрана
-    }
+    // Переключение между бочками
+    document.getElementById("prevBarrel").onclick = function() {
+      currentBarrel = currentBarrel === "module" ? "103" : "module";
+      document.getElementById("barrelTitle").textContent = currentBarrel;
+      loadCSVData(); // Загружаем новый файл CSV при смене бочки
+    };
+
+    document.getElementById("nextBarrel").onclick = function() {
+      currentBarrel = currentBarrel === "module" ? "103" : "module";
+      document.getElementById("barrelTitle").textContent = currentBarrel;
+      loadCSVData(); // Загружаем новый файл CSV при смене бочки
+    };
   </script>
 </body>
 </html>
