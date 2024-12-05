@@ -28,6 +28,7 @@
       color: white;
       text-align: center;
       margin-bottom: 20px;
+      min-height: 50px; /* Устанавливаем минимальную высоту для дисплея */
     }
     .button-container {
       display: grid;
@@ -45,8 +46,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 60px; /* Устанавливаем фиксированную высоту для кнопок */
-      width: 100%; /* Кнопки будут растягиваться на всю доступную ширину */
+      height: 60px; /* Фиксированная высота для кнопок */
+      width: 100%; /* Кнопки растягиваются на всю доступную ширину */
       box-sizing: border-box; /* Учитываем padding в ширине */
     }
     .button:hover {
@@ -68,6 +69,7 @@
       color: white;
       border-radius: 10px;
       cursor: pointer;
+      width: 45%; /* Ширина кнопок стрелок */
     }
     .arrow:hover {
       background-color: #5e35b1;
@@ -151,12 +153,6 @@
 
     // Переключение между бочками
     document.getElementById("prevBarrel").onclick = function() {
-      currentBarrel = currentBarrel === "module" ? "103" : "module";
-      document.getElementById("barrelTitle").textContent = currentBarrel.charAt(0).toUpperCase() + currentBarrel.slice(1);
-      loadCSVData();
-    };
-
-    document.getElementById("nextBarrel").onclick = function() {
       currentBarrel = currentBarrel === "module" ? "103" : "module";
       document.getElementById("barrelTitle").textContent = currentBarrel.charAt(0).toUpperCase() + currentBarrel.slice(1);
       loadCSVData();
