@@ -31,8 +31,8 @@
     }
     .button-container {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(4, 1fr); /* 4 кнопки в ряду */
+      gap: 10px; /* Расстояние между кнопками */
     }
     .button {
       background-color: #7c4dff;
@@ -42,9 +42,18 @@
       color: white;
       border-radius: 10px;
       cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 60px; /* Устанавливаем фиксированную высоту для кнопок */
+      width: 100%; /* Кнопки будут растягиваться на всю доступную ширину */
+      box-sizing: border-box; /* Учитываем padding в ширине */
     }
     .button:hover {
       background-color: #5e35b1;
+    }
+    .button:active {
+      background-color: #4527a0;
     }
     .control-buttons {
       display: flex;
@@ -96,7 +105,7 @@
 
     // Загружаем CSV данные с использованием PapaParse
     function loadCSVData() {
-      Papa.parse("module.csv", {
+      Papa.parse(currentBarrel + ".csv", {
         download: true,
         complete: function(results) {
           data = {};
@@ -105,7 +114,7 @@
               data[row[0]] = row[1];  // Сохраняем данные в объект
             }
           });
-          console.log("Данные для module:", data);
+          console.log("Данные для " + currentBarrel + ":", data);
         }
       });
     }
@@ -130,28 +139,27 @@
     document.getElementById("button8").onclick = () => updateDisplay(displayValue === "0" ? "8" : displayValue + "8");
     document.getElementById("button9").onclick = () => updateDisplay(displayValue === "0" ? "9" : displayValue + "9");
     document.getElementById("button0").onclick = () => updateDisplay(displayValue === "0" ? "0" : displayValue + "0");
-
-    // Кнопка Enter (поиск значения)
+    
+    // Обработчик кнопки "Enter"
     document.getElementById("buttonEnter").onclick = function() {
       if (data[displayValue]) {
-        alert(`Найдено значение: ${data[displayValue]}`);
+        alert("Литраж для " + displayValue + ": " + data[displayValue]);
       } else {
-        alert(`Значение ${displayValue} не найдено`);
+        alert("Значение не найдено");
       }
-      updateDisplay("0");
     };
 
     // Переключение между бочками
     document.getElementById("prevBarrel").onclick = function() {
       currentBarrel = currentBarrel === "module" ? "103" : "module";
-      document.getElementById("barrelTitle").textContent = currentBarrel;
-      loadCSVData(); // Загружаем новый файл CSV при смене бочки
+      document.getElementById("barrelTitle").textContent = currentBarrel.charAt(0).toUpperCase() + currentBarrel.slice(1);
+      loadCSVData();
     };
 
     document.getElementById("nextBarrel").onclick = function() {
       currentBarrel = currentBarrel === "module" ? "103" : "module";
-      document.getElementById("barrelTitle").textContent = currentBarrel;
-      loadCSVData(); // Загружаем новый файл CSV при смене бочки
+      document.getElementById("barrelTitle").textContent = currentBarrel.charAt(0).toUpperCase() + currentBarrel.slice(1);
+      loadCSVData();
     };
   </script>
 </body>
